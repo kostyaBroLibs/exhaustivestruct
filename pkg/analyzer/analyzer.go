@@ -35,16 +35,13 @@ func newFlagSet() flag.FlagSet {
 	return *fs
 }
 
+// TODO add **
+
 func run(pass *analysis.Pass) (interface{}, error) {
-	splitFn := func(c rune) bool { return c == ',' }
 	inspector := pass.ResultOf[inspect.Analyzer].(*inspector.Inspector)
-	structPatterns := strings.FieldsFunc(StructPatternList, splitFn)
-	// validate the pattern syntax
-	for _, pattern := range structPatterns {
-		_, err := path.Match(pattern, "")
-		if err != nil {
-			return nil, fmt.Errorf("invalid struct pattern %s: %w", pattern, err)
-		}
+	structPatterns, err := patterns()
+	if err != nil {
+		return nil, err
 	}
 
 	nodeFilter := []ast.Node{
@@ -184,4 +181,22 @@ func run(pass *analysis.Pass) (interface{}, error) {
 	})
 
 	return nil, nil
+}
+
+func patterns() ([]string, error) {
+	splitFn := func(c rune) bool {
+		return c == ','
+	}
+
+	structPatterns := strings.FieldsFunc(StructPatternList, splitFn)
+
+	// validate the pattern syntax
+	for _, pattern := range structPatterns {
+		_, err := path.Match(pattern, "")
+		if err != nil {
+			return nil, fmt.Errorf("invalid struct pattern %s: %w", pattern, err)
+		}
+	}
+
+	return structPatterns, nil
 }

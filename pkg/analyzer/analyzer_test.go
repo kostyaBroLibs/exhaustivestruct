@@ -15,7 +15,9 @@ func TestAll(t *testing.T) {
 		t.Fatalf("Failed to get wd: %s", err)
 	}
 
-	testdata := filepath.Join(filepath.Dir(filepath.Dir(wd)), "testdata")
+	testdata := filepath.Join(
+		filepath.Dir(
+			filepath.Dir(wd)), "testdata")
 	analyzer.StructPatternList = "*.Test,*.Test2,*.Embedded,*.External"
 	analysistest.Run(t, testdata, analyzer.Analyzer, "s")
 }
